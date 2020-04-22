@@ -35,23 +35,26 @@ namespace RaycastEngine
         private static int w;
         private static int h;
 
-        //--world map--//
+        // World Map
         private static Map map;
         private static int[,] worldMap;
         private static int[,] upMap;
         private static int[,] midMap;
 
-        //--texture width--//
+        // Texture Width
         private static int texWidth;
 
-        //--slices--//
+        // Slices
         private static Rectangle[] s;
 
-        //--move speed--//
-        private static double moveSpeed = 0.06;
+        // Movement Speed
+        private static float moveSpeed = 0.06f;
 
-        //--rotate speed--//
-        private static double rotSpeed = 0.03;
+        // Rotation Speed
+        private static float rotSpeed = 0.03f;
+
+        // Mouse Sensitivity
+        private static float mouseSensitivity = 1f;
 
         //--cam x pre calc--//
         private static double[] camX;
@@ -69,61 +72,53 @@ namespace RaycastEngine
 
             //--init cam pre calc array--//
             camX = new double[w];
-            preCalcCamX();
+            PreCalcCamX();
 
             map = new Map();
             worldMap = map.getGrid();
             upMap = map.getGridUp();
             midMap = map.getGridMid();
 
-            raycast();//do an initial raycast
+            Raycast();
         }
 
-        public void update()
+        public void Update()
         {
-            //--do raycast--//
-            raycast();
+            Raycast();
 
-            //=========================//
-            //=====take user input=====//
-            //=========================//
+            /*   Handle Movement   */
+            KeyboardState keyState = Keyboard.GetState();
+            MouseState mouseState = Mouse.GetState();
 
-            KeyboardState state = Keyboard.GetState();
-
-            bool lArrowKeyDown = state.IsKeyDown(Keys.Left) || state.IsKeyDown(Keys.A);
-
-            if (lArrowKeyDown)
+            if (keyState.IsKeyDown(Keys.Left) || keyState.IsKeyDown(Keys.A))
             {
-                rotate(rotSpeed);
+                MoveSideways(moveSpeed);
             }
 
-            bool rArrowKeyDown = state.IsKeyDown(Keys.Right) || state.IsKeyDown(Keys.D);
-
-            if (rArrowKeyDown)
+            if (keyState.IsKeyDown(Keys.Right) || keyState.IsKeyDown(Keys.D))
             {
-                rotate(-rotSpeed);
+                MoveSideways(-moveSpeed);
             }
 
-            bool uArrowKeyDown = state.IsKeyDown(Keys.Up) || state.IsKeyDown(Keys.W);
-
-            if (uArrowKeyDown)
+            if (keyState.IsKeyDown(Keys.Up) || keyState.IsKeyDown(Keys.W))
             {
-                move(moveSpeed);
+                MoveForward(moveSpeed);
             }
 
-            bool dArrowKeyDown = state.IsKeyDown(Keys.Down) || state.IsKeyDown(Keys.S);
-
-            if (dArrowKeyDown)
+            if (keyState.IsKeyDown(Keys.Down) || keyState.IsKeyDown(Keys.S))
             {
-                move(-moveSpeed);
+                MoveForward(-moveSpeed);
             }
 
-            //=========================//
-            //=====user input end======//
-            //=========================//
+            Rotate(mouseState.X * mouseSensitivity * -0.001f);
+
+            Mouse.SetPosition(0, 0);
+
+            Console.WriteLine(dir.X);
+            Console.WriteLine(dir.Y);
         }
 
-        public void raycast()
+        public void Raycast()
         {
             for (int x = 0; x < w; x++)
             {
@@ -133,19 +128,15 @@ namespace RaycastEngine
                     if (i == 0) map = worldMap;
                     else if (i == 1) map = midMap;
                     else map = upMap;//if above lvl2 just keep extending up
-                    castLevel(x, map, lvls[i].cts, lvls[i].sv, lvls[i].st, i);
+                    CastLevel(x, map, lvls[i].cts, lvls[i].sv, lvls[i].st, i);
                 }
             }
 
         }
 
-        /**
-        * credit : Raycast loop and setting up of vectors for matrix calculations, I just updated it to use modern rendering methods.
-        * courtesy - http://lodev.org/cgtutor/raycasting.html
-        */
-        public void castLevel(int x, int[,] grid, Rectangle[] _cts, Rectangle[] _sv, Color[] _st, int levelNum)
+        public void CastLevel(int x, int[,] grid, Rectangle[] _cts, Rectangle[] _sv, Color[] _st, int levelNum)
         {
-            //calculate ray position and direction
+            // Calculate ray position and direction
             double cameraX = camX[x];//x-coordinate in camera space
             double rayDirX = dir.X + plane.X * cameraX;
             double rayDirY = dir.Y + plane.Y * cameraX;
@@ -158,7 +149,7 @@ namespace RaycastEngine
             int mapX = (int)rayPosX;
             int mapY = (int)rayPosY;
 
-            //length of ray from current position to next x or y-side
+            // Length of ray from current position to next x or y-side
             double sideDistX;
             double sideDistY;
 
@@ -306,21 +297,24 @@ namespace RaycastEngine
 
         }
 
-        /// <summary>
-        /// Moves camera by move speed
-        /// </summary>
-        /// <param name="mSpeed">Move speed</param>
-        public void move(double mSpeed)
+        public void MoveForward(float mSpeed)
         {
-            if (worldMap[(int)(pos.X + dir.X * mSpeed * 12), (int)pos.Y] > 0 == false) pos.X += (float)(dir.X * mSpeed);
-            if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed * 12)] > 0 == false) pos.Y += (float)(dir.Y * mSpeed);
+            if (worldMap[(int)(pos.X + dir.X * mSpeed * 12), (int)pos.Y] > 0 == false) pos.X += dir.X * mSpeed;
+            if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed * 12)] > 0 == false) pos.Y += dir.Y * mSpeed;
+        }
+
+        public void MoveSideways(float mSpeed)
+        {
+            
+            pos.X += (dir.X + 0.90f) * mSpeed;
+            pos.Y += (dir.Y - 0.90f) * mSpeed;
         }
 
         /// <summary>
         /// Rotates camera by rotate speed
         /// </summary>
         /// <param name="rSpeed">Rotate speed</param>
-        public void rotate(double rSpeed)
+        public void Rotate(float rSpeed)
         {
             //both camera direction and camera plane must be rotated
             double oldDirX = dir.X;
@@ -334,7 +328,7 @@ namespace RaycastEngine
         /// <summary>
         /// precalculates camera x coordinate
         /// </summary>
-        public static void preCalcCamX()
+        public static void PreCalcCamX()
         {
             for (int x = 0; x < w; x++)
                 camX[x] = 2 * x / (double)w - 1; //x-coordinate in camera space

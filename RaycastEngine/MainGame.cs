@@ -65,8 +65,8 @@ namespace RaycastEngine
             Content.RootDirectory = "Content";
 
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
-            graphics.PreferredBackBufferWidth = 1024;  // set these values to the desired width and height of your window 
-            graphics.PreferredBackBufferHeight = 700; // (if your computer struggles, either turn down number of levels rendered or turn this to something low, like 800 x 600)
+            graphics.PreferredBackBufferWidth = 1280;  // set these values to the desired width and height of your window 
+            graphics.PreferredBackBufferHeight = 720; // (if your computer struggles, either turn down number of levels rendered or turn this to something low, like 800 x 600)
             // graphics.IsFullScreen = true;
             graphics.ApplyChanges();
         }
@@ -138,7 +138,7 @@ namespace RaycastEngine
                 Exit();
 
             // TODO: Add your update logic here
-            camera.update();
+            camera.Update();
         }
 
         /// <summary>
