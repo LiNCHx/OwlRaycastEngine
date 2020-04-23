@@ -110,9 +110,6 @@ namespace RaycastEngine
             Rotate(mouseState.X * mouseSensitivity * -0.001f);
 
             Mouse.SetPosition(0, 0);
-
-            Console.WriteLine(dir.X);
-            Console.WriteLine(dir.Y);
         }
 
         public void Raycast()
@@ -298,9 +295,16 @@ namespace RaycastEngine
         {
             try
             {
-                // TODO: Fix Collision
-                if (worldMap[(int)(pos.X + dir.X * mSpeed * 12), (int)pos.Y] > 0 == false) pos.X += dir.X * mSpeed;
-                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed * 12)] > 0 == false) pos.Y += dir.Y * mSpeed;
+                // TODO: Bigger collision boxes
+                if (worldMap[(int)(pos.X + dir.X * mSpeed), (int)pos.Y] > 0 == false)
+                {
+                    pos.X += dir.X * mSpeed;
+                }
+
+                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed)] > 0 == false)
+                { 
+                    pos.Y += dir.Y * mSpeed; 
+                }
             } catch (Exception ex)
             {
                 Console.WriteLine("MovementFailed: " + ex.Message);
