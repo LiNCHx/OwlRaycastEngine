@@ -121,7 +121,8 @@ namespace RaycastEngine
                     int[,] map;
                     if (i == 0) map = worldMap;
                     else if (i == 1) map = midMap;
-                    else map = upMap;//if above lvl2 just keep extending up
+                    else map = upMap; //if above lvl2 just keep extending up
+                    // TODO: Support new Map format
                     CastLevel(x, map, lvls[i].cts, lvls[i].sv, lvls[i].st, i);
                 }
             }
@@ -296,12 +297,12 @@ namespace RaycastEngine
             try
             {
                 // TODO: Bigger collision boxes
-                if (worldMap[(int)(pos.X + dir.X * mSpeed), (int)pos.Y] > 0 == false)
+                if (worldMap[(int)(pos.X + dir.X * mSpeed), (int)pos.Y] == 0)
                 {
                     pos.X += dir.X * mSpeed;
                 }
 
-                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed)] > 0 == false)
+                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed)] == 0)
                 { 
                     pos.Y += dir.Y * mSpeed; 
                 }
@@ -316,8 +317,15 @@ namespace RaycastEngine
             float rotX = (float)(dir.X * Math.Cos(1.5) - dir.Y * Math.Sin(1.5));
             float rotY = (float)(dir.X * Math.Sin(1.5) + dir.Y * Math.Cos(1.5));
 
-            pos.X += rotX * mSpeed;
-            pos.Y += rotY * mSpeed;
+            if (worldMap[(int)(pos.X + rotX * mSpeed), (int)pos.Y] == 0)
+            {
+                pos.X += rotX * mSpeed;
+            }
+
+            if (worldMap[(int)pos.X, (int)(pos.Y + rotY * mSpeed)] == 0)
+            {
+                pos.Y += rotY * mSpeed;
+            }
         }
 
         /// <summary>

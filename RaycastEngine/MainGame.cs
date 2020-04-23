@@ -67,7 +67,10 @@ namespace RaycastEngine
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             graphics.PreferredBackBufferWidth = 1280;  // set these values to the desired width and height of your window 
             graphics.PreferredBackBufferHeight = 720; // (if your computer struggles, either turn down number of levels rendered or turn this to something low, like 800 x 600)
+
             // graphics.IsFullScreen = true;
+            // graphics.SynchronizeWithVerticalRetrace = false;
+
             graphics.ApplyChanges();
         }
 
@@ -90,7 +93,7 @@ namespace RaycastEngine
             slices = slicer.getSlices();
 
             //--inits the levels--//
-            levels = createLevels(4);
+            levels = CreateLevels(4);
 
             //--init camera--//
             camera = new Camera(width, height, texSize, slices, levels);
@@ -104,7 +107,6 @@ namespace RaycastEngine
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
@@ -175,10 +177,11 @@ namespace RaycastEngine
             spriteBatch.End();
 
             base.Draw(gameTime);
+            Console.WriteLine("FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds));
         }
 
         //returns an initialised Level struct
-        public Level[] createLevels(int numLevels)
+        public Level[] CreateLevels(int numLevels)
         {
             Level[] arr = new Level[numLevels];
             for (int i = 0; i < numLevels; i++)
