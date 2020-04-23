@@ -50,9 +50,6 @@ namespace RaycastEngine
         // Movement Speed
         private static float moveSpeed = 0.06f;
 
-        // Rotation Speed
-        private static float rotSpeed = 0.03f;
-
         // Mouse Sensitivity
         private static float mouseSensitivity = 1f;
 
@@ -299,15 +296,24 @@ namespace RaycastEngine
 
         public void MoveForward(float mSpeed)
         {
-            if (worldMap[(int)(pos.X + dir.X * mSpeed * 12), (int)pos.Y] > 0 == false) pos.X += dir.X * mSpeed;
-            if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed * 12)] > 0 == false) pos.Y += dir.Y * mSpeed;
+            try
+            {
+                // TODO: Fix Collision
+                if (worldMap[(int)(pos.X + dir.X * mSpeed * 12), (int)pos.Y] > 0 == false) pos.X += dir.X * mSpeed;
+                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed * 12)] > 0 == false) pos.Y += dir.Y * mSpeed;
+            } catch (Exception ex)
+            {
+                Console.WriteLine("MovementFailed: " + ex.Message);
+            }
         }
 
         public void MoveSideways(float mSpeed)
         {
-            
-            pos.X += (dir.X + 0.90f) * mSpeed;
-            pos.Y += (dir.Y - 0.90f) * mSpeed;
+            float rotX = (float)(dir.X * Math.Cos(1.5) - dir.Y * Math.Sin(1.5));
+            float rotY = (float)(dir.X * Math.Sin(1.5) + dir.Y * Math.Cos(1.5));
+
+            pos.X += rotX * mSpeed;
+            pos.Y += rotY * mSpeed;
         }
 
         /// <summary>
