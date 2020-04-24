@@ -43,10 +43,10 @@
   <ItemGroup>
     <Compile Include="Raycaster\Camera.cs" />
     <Compile Include="MainGame.cs" />
-    <Compile Include="Raycaster\Map.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Raycaster\TextureHandler.cs" />
+    <Compile Include="Raycaster\Map.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

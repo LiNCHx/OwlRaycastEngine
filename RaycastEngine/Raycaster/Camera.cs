@@ -5,6 +5,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RaycastEngine.Raycaster;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,10 +37,10 @@ namespace RaycastEngine
         private static int h;
 
         // World Map
-        private static Map map;
-        private static int[,] worldMap;
-        private static int[,] upMap;
-        private static int[,] midMap;
+        private static Map theMap;
+        //private static int[,] worldMap;
+        //private static int[,] upMap;
+        //private static int[,] midMap;
 
         // Texture Width
         private static int texWidth;
@@ -59,7 +60,7 @@ namespace RaycastEngine
         //--structs that contain rects and tints for each level or "floor" renderered--//
         Level[] lvls;
 
-        public Camera(int width, int height, int texWid, Rectangle[] slices, Level[] levels)
+        public Camera(int width, int height, int texWid, Rectangle[] slices, Level[] levels, Map pMap)
         {
             w = width;
             h = height;
@@ -71,10 +72,10 @@ namespace RaycastEngine
             camX = new double[w];
             PreCalcCamX();
 
-            map = new Map();
-            worldMap = map.getGrid();
-            upMap = map.getGridUp();
-            midMap = map.getGridMid();
+            theMap = pMap;
+            //worldMap = map.getGrid();
+            //upMap = map.getGridUp();
+            //midMap = map.getGridMid();
 
             Raycast();
         }
@@ -116,14 +117,10 @@ namespace RaycastEngine
         {
             for (int x = 0; x < w; x++)
             {
-                for (int i = 0; i < lvls.Length; i++)
+                for (int i = 0; i < theMap.LevelCount(); i++)
                 {
-                    int[,] map;
-                    if (i == 0) map = worldMap;
-                    else if (i == 1) map = midMap;
-                    else map = upMap; //if above lvl2 just keep extending up
-                    // TODO: Support new Map format
-                    CastLevel(x, map, lvls[i].cts, lvls[i].sv, lvls[i].st, i);
+                    int[,] cLevel = theMap.GetLevel(i);
+                    CastLevel(x, cLevel, lvls[i].cts, lvls[i].sv, lvls[i].st, i);
                 }
             }
 
@@ -297,18 +294,18 @@ namespace RaycastEngine
             try
             {
                 // TODO: Bigger collision boxes
-                if (worldMap[(int)(pos.X + dir.X * mSpeed), (int)pos.Y] == 0)
+                if (theMap.GetWorldMatrix()[(int)(pos.X + dir.X * mSpeed), (int)pos.Y] == 0)
                 {
                     pos.X += dir.X * mSpeed;
                 }
 
-                if (worldMap[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed)] == 0)
+                if (theMap.GetWorldMatrix()[(int)pos.X, (int)(pos.Y + dir.Y * mSpeed)] == 0)
                 { 
                     pos.Y += dir.Y * mSpeed; 
                 }
             } catch (Exception ex)
             {
-                Console.WriteLine("MovementFailed: " + ex.Message);
+                Console.WriteLine("Movement failed: " + ex.Message);
             }
         }
 
@@ -317,14 +314,20 @@ namespace RaycastEngine
             float rotX = (float)(dir.X * Math.Cos(1.5) - dir.Y * Math.Sin(1.5));
             float rotY = (float)(dir.X * Math.Sin(1.5) + dir.Y * Math.Cos(1.5));
 
-            if (worldMap[(int)(pos.X + rotX * mSpeed), (int)pos.Y] == 0)
+            try
             {
-                pos.X += rotX * mSpeed;
-            }
+                if (theMap.GetWorldMatrix()[(int)(pos.X + rotX * mSpeed), (int)pos.Y] == 0)
+                {
+                    pos.X += rotX * mSpeed;
+                }
 
-            if (worldMap[(int)pos.X, (int)(pos.Y + rotY * mSpeed)] == 0)
+                if (theMap.GetWorldMatrix()[(int)pos.X, (int)(pos.Y + rotY * mSpeed)] == 0)
+                {
+                    pos.Y += rotY * mSpeed;
+                }
+            } catch (Exception ex)
             {
-                pos.Y += rotY * mSpeed;
+                Console.WriteLine("Movement failed: " + ex.Message);
             }
         }
 
